@@ -12,6 +12,7 @@ import torch.nn as nn
 from diffusers.models.activations import GEGLU, GELU, ApproximateGELU, SwiGLU
 from diffusers.models.attention import BasicTransformerBlock, FeedForward, JointTransformerBlock
 from diffusers.models.attention_processor import Attention, SanaLinearAttnProcessor2_0
+from diffusers.models.transformers.transformer_flux import FluxAttention
 from diffusers.models.embeddings import (
     CombinedTimestepGuidanceTextProjEmbeddings,
     CombinedTimestepTextProjEmbeddings,
@@ -1947,6 +1948,7 @@ class FluxStruct(DiTStruct):
 
 
 DiffusionAttentionStruct.register_factory(Attention, DiffusionAttentionStruct._default_construct)
+DiffusionAttentionStruct.register_factory(FluxAttention, DiffusionAttentionStruct._default_construct)
 
 DiffusionFeedForwardStruct.register_factory(
     (FeedForward, FluxSingleTransformerBlock, GLUMBConv), DiffusionFeedForwardStruct._default_construct
