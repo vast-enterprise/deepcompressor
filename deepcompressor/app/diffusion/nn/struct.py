@@ -344,7 +344,7 @@ class DiffusionAttentionStruct(AttentionStruct):
         idx: int = 0,
         **kwargs,
     ) -> "DiffusionAttentionStruct":
-        if module.is_cross_attention:
+        if hasattr(module, "is_cross_attention") and module.is_cross_attention:
             q_proj, k_proj, v_proj = module.to_q, None, None
             add_q_proj, add_k_proj, add_v_proj, add_o_proj = None, module.to_k, module.to_v, None
             q_proj_rname, k_proj_rname, v_proj_rname = "to_q", "", ""
