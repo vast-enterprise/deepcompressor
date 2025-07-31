@@ -25,7 +25,6 @@ bitsandbytes = ">= 0.42.0"
 transformers = ">= 4.46.0"
 lm_eval = ">= 0.4.2"
 accelerate = ">= 0.26.0"
-datasets = ">= 2.16.0"
 sentencepiece = ">= 0.1.99"
 omniconfig = ">= 0.1.10"
 jieba = ">= 0.42.1"
@@ -33,7 +32,7 @@ fuzzywuzzy = ">= 0.18.0"
 rouge = ">= 1.0.1"
 python-Levenshtein = ">=0.26.1"
 protobuf = ">= 5.26.0"
-diffusers = ">= 0.32.0"
+diffusers = { path = "/mnt/pfs/users/lijinzhu/code/diffusers" }
 clean-fid = ">= 0.1.35"
 dominate = ">= 2.9.1"
 opencv-python = ">= 4.10.0"
@@ -47,6 +46,7 @@ xformers = ">= 0.0.26"
 pyav = ">= 13.0.0"
 clip = ">= 0.2.0"
 image_reward = { git = "https://github.com/THUDM/ImageReward.git", branch = "main" }
+datasets = "3.6.0"
 
 [tool.poetry.group.dev.dependencies]
 matplotlib = ">= 3.8.4"
@@ -76,3 +76,8 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[[tool.poetry.source]]
+name = "baidu"
+url = "http://mirrors.baidubce.com/pypi/simple/"
+default = true

@@ -10,6 +10,7 @@ from diffusers.pipelines import (
     AutoPipelineForText2Image,
     DiffusionPipeline,
     FluxControlPipeline,
+    FluxKontextPipeline,
     FluxFillPipeline,
     SanaPipeline,
 )
@@ -344,9 +345,13 @@ class DiffusionPipelineConfig:
                 path = "black-forest-labs/FLUX.1-Fill-dev"
             elif name == "flux.1-schnell":
                 path = "black-forest-labs/FLUX.1-schnell"
+            elif name == "flux.1-kontext-dev":
+                path = "black-forest-labs/FLUX.1-Kontext-dev"
             else:
                 raise ValueError(f"Path for {name} is not specified.")
-        if name in ["flux.1-canny-dev", "flux.1-depth-dev"]:
+        if name == "flux.1-kontext-dev":
+            pipeline = FluxKontextPipeline.from_pretrained(path, torch_dtype=dtype)
+        elif name in ["flux.1-canny-dev", "flux.1-depth-dev"]:
             pipeline = FluxControlPipeline.from_pretrained(path, torch_dtype=dtype)
         elif name == "flux.1-fill-dev":
             pipeline = FluxFillPipeline.from_pretrained(path, torch_dtype=dtype)
