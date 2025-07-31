@@ -159,10 +159,14 @@ def ptq(  # noqa: C901
     # endregion
     if load_model:
         logger.info(f"* Loading model checkpoint from {load_model_path}")
+        ckpt = torch.load(
+            "/mnt/pfs/users/lijinzhu/model/mvdiff/outputs/flux-kontext-multiview/tripo3_multires_dropgeo_cont_full_crop1024/ckpts/epoch=0-step=10000/pytorch_model.bin",
+            map_location="cpu", weights_only=False)
+        state_dict = {k.replace("transformer.", "").replace("_orig_mod.", ""): v for k, v in ckpt.items() if "transformer" in k}
         load_diffusion_weights_state_dict(
             model,
             config,
-            state_dict=torch.load(load_model_path),
+            state_dict=state_dict,
             branch_state_dict=torch.load(load_path.branch) if os.path.exists(load_path.branch) else None,
         )
         gc.collect()

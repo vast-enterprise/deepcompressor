@@ -463,6 +463,10 @@ def load_diffusion_weights_state_dict(
             dynamic_ncols=True,
         ):
             calibrate_diffusion_block_low_rank_branch(layer=layer, config=config, branch_state_dict=branch_state_dict)
-    model.module.load_state_dict(state_dict)
+    model.module.load_state_dict(state_dict, strict=False)
+    print("model load state dict done!")
+    model.module.fuse_lora()
+    model.module.unload_lora_weights()
+    print("model load lora weights done!")
     gc.collect()
     torch.cuda.empty_cache()

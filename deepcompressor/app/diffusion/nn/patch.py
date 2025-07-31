@@ -1,6 +1,7 @@
 import torch.nn as nn
 from diffusers.models.attention_processor import Attention
 from diffusers.models.transformers.transformer_flux import FluxSingleTransformerBlock
+import peft.tuners.lora.layer as lora
 
 from deepcompressor.nn.patch.conv import ConcatConv2d, ShiftedConv2d
 from deepcompressor.nn.patch.linear import ConcatLinear, ShiftedLinear
@@ -91,7 +92,7 @@ def shift_input_activations(model: nn.Module) -> None:
             shift = -lowerbound
             logger.info(f"+ Shifting input activations of {module_name} by {shift}")
             tools.logging.Formatter.indent_inc()
-            if isinstance(module, nn.Linear):
+            if isinstance(module, nn.Linear) or isinstance(module, lora.Linear):
                 shifted = ShiftedLinear.from_linear(module, shift=shift)
                 shifted.linear.unsigned = True
             elif isinstance(module, nn.Conv2d):

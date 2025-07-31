@@ -74,6 +74,7 @@ from deepcompressor.nn.struct.base import BaseModuleStruct
 from deepcompressor.utils.common import join_name
 
 from .attention import DiffusionAttentionProcessor
+import peft.tuners.lora.layer as lora
 
 # endregion
 
@@ -363,7 +364,8 @@ class DiffusionAttentionStruct(AttentionStruct):
         if getattr(module, "to_out", None) is not None:
             o_proj = module.to_out[0]
             o_proj_rname = "to_out.0"
-            assert isinstance(o_proj, nn.Linear)
+            ## 第一层全连接层被替换成为了peft的lora的linear所以需要联合判断
+            assert isinstance(o_proj, nn.Linear) or isinstance(o_proj, lora.Linear)
         elif parent is not None:
             assert isinstance(parent.module, FluxSingleTransformerBlock)
             assert isinstance(parent.module.proj_out, ConcatLinear)
@@ -484,7 +486,7 @@ class DiffusionFeedForwardStruct(FeedForwardStruct):
             layer_1, layer_2 = module.net[0], module.net[2]
             assert isinstance(layer_1, (GEGLU, GELU, ApproximateGELU, SwiGLU))
             up_proj, up_proj_rname = layer_1.proj, "net.0.proj"
-            assert isinstance(up_proj, nn.Linear)
+            assert isinstance(up_proj, nn.Linear) or isinstance(up_proj, lora.Linear)
             down_proj, down_proj_rname = layer_2, "net.2"
             if isinstance(layer_1, GEGLU):
                 act_type = "gelu_glu"
@@ -496,7 +498,7 @@ class DiffusionFeedForwardStruct(FeedForwardStruct):
                 if isinstance(layer_2, ShiftedLinear):
                     down_proj, down_proj_rname = layer_2.linear, "net.2.linear"
                     act_type = "gelu_shifted"
-            assert isinstance(down_proj, nn.Linear)
+            assert isinstance(down_proj, nn.Linear) or isinstance(up_proj, lora.Linear)
             ffn = module
         elif isinstance(module, FluxSingleTransformerBlock):
             up_proj, up_proj_rname = module.proj_mlp, "proj_mlp"

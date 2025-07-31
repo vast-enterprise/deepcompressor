@@ -6,6 +6,7 @@ import typing as tp
 from dataclasses import dataclass, field
 
 import torch
+from diffusers import FlowMatchEulerDiscreteScheduler
 from diffusers.pipelines import (
     AutoPipelineForText2Image,
     DiffusionPipeline,
@@ -17,6 +18,7 @@ from diffusers.pipelines import (
 from omniconfig import configclass
 from torch import nn
 from transformers import PreTrainedModel, PreTrainedTokenizer, T5EncoderModel
+from peft import LoraConfig
 
 from deepcompressor.data.utils.dtype import eval_dtype
 from deepcompressor.quantizer.processor import Quantizer
@@ -351,6 +353,41 @@ class DiffusionPipelineConfig:
                 raise ValueError(f"Path for {name} is not specified.")
         if name == "flux.1-kontext-dev":
             pipeline = FluxKontextPipeline.from_pretrained(path, torch_dtype=dtype)
+            ## our custom below
+            ### --------------------------------start---------------------------------
+            transformer = pipeline.transformer
+
+            # prepare transformer for texture generation
+            x_embedder = transformer.x_embedder
+            x_embedder_new = nn.Linear(x_embedder.in_features * 3, x_embedder.out_features,
+                                       bias=x_embedder.bias is not None)
+            x_embedder_new.weight.data[:, :x_embedder.in_features] = x_embedder.weight.data
+            x_embedder_new.weight.data[:, x_embedder.in_features:] = 0
+            x_embedder_new.bias.data = x_embedder.bias.data
+            transformer.x_embedder = x_embedder_new
+            transformer_lora_config = LoraConfig(
+                r=64,
+                lora_alpha=64,
+                init_lora_weights="gaussian",
+                target_modules=[
+                    "attn.to_k",
+                    "attn.to_q",
+                    "attn.to_v",
+                    "attn.to_out.0",
+                    "attn.add_k_proj",
+                    "attn.add_q_proj",
+                    "attn.add_v_proj",
+                    "attn.to_add_out",
+                    "ff.net.0.proj",
+                    "ff.net.2",
+                    "ff_context.net.0.proj",
+                    "ff_context.net.2"
+                ],
+            )
+            transformer.add_adapter(transformer_lora_config)
+            print("transformer add adapter done!")
+
+            ### --------------------------------end---------------------------------
         elif name in ["flux.1-canny-dev", "flux.1-depth-dev"]:
             pipeline = FluxControlPipeline.from_pretrained(path, torch_dtype=dtype)
         elif name == "flux.1-fill-dev":

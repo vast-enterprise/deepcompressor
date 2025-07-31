@@ -3,6 +3,7 @@
 
 import torch
 import torch.nn as nn
+import peft.tuners.lora.layer as lora
 
 __all__ = ["ConcatLinear", "ShiftedLinear"]
 
@@ -44,7 +45,7 @@ class ConcatLinear(nn.Module):
         return sum(out_splits)
 
     @staticmethod
-    def from_linear(linear: nn.Linear, splits: list[int]) -> "ConcatLinear":
+    def from_linear(linear: nn.Linear | lora.Linear, splits: list[int]) -> "ConcatLinear":
         splits.append(linear.in_features - sum(splits))
         splits = [s for s in splits if s > 0]
         assert len(splits) > 1, "ConcatLinear requires at least 2 input features"
@@ -104,7 +105,7 @@ class ShiftedLinear(nn.Module):
         return self.linear(input + self.shift.view([1] * (input.dim() - 1) + [-1]))
 
     @staticmethod
-    def from_linear(linear: nn.Linear, shift: float | torch.Tensor) -> "ShiftedLinear":
+    def from_linear(linear: nn.Linear | lora.Linear, shift: float | torch.Tensor) -> "ShiftedLinear":
         device, dtype = linear.weight.device, linear.weight.dtype
         shifted = ShiftedLinear(
             in_features=linear.in_features,
