@@ -51,6 +51,7 @@ from diffusers.pipelines import (
     FluxControlPipeline,
     FluxFillPipeline,
     FluxPipeline,
+    FluxKontextPipeline,
     PixArtAlphaPipeline,
     PixArtSigmaPipeline,
     SanaPipeline,
@@ -110,6 +111,7 @@ DIT_PIPELINE_CLS = tp.Union[
     PixArtAlphaPipeline,
     PixArtSigmaPipeline,
     FluxPipeline,
+    FluxKontextPipeline,
     FluxControlPipeline,
     FluxFillPipeline,
     SanaPipeline,
@@ -1860,7 +1862,7 @@ class FluxStruct(DiTStruct):
 
     @staticmethod
     def _default_construct(
-        module: tp.Union[FluxPipeline, FluxControlPipeline, FluxTransformer2DModel],
+        module: tp.Union[FluxPipeline, FluxControlPipeline, FluxTransformer2DModel, FluxKontextPipeline],
         /,
         parent: tp.Optional[BaseModuleStruct] = None,
         fname: str = "",
@@ -1869,7 +1871,7 @@ class FluxStruct(DiTStruct):
         idx: int = 0,
         **kwargs,
     ) -> "FluxStruct":
-        if isinstance(module, (FluxPipeline, FluxControlPipeline)):
+        if isinstance(module, (FluxPipeline, FluxControlPipeline, FluxKontextPipeline)):
             module = module.transformer
         if isinstance(module, FluxTransformer2DModel):
             input_embed, time_embed, text_embed = module.x_embedder, module.time_text_embed, module.context_embedder
@@ -1961,7 +1963,7 @@ UNetBlockStruct.register_factory(UNET_BLOCK_CLS, UNetBlockStruct._default_constr
 UNetStruct.register_factory(tp.Union[UNET_PIPELINE_CLS, UNET_CLS], UNetStruct._default_construct)
 
 FluxStruct.register_factory(
-    tp.Union[FluxPipeline, FluxControlPipeline, FluxTransformer2DModel], FluxStruct._default_construct
+    tp.Union[FluxPipeline, FluxControlPipeline, FluxTransformer2DModel, FluxKontextPipeline], FluxStruct._default_construct
 )
 
 DiTStruct.register_factory(tp.Union[DIT_PIPELINE_CLS, DIT_CLS], DiTStruct._default_construct)
