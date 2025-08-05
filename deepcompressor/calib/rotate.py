@@ -8,6 +8,7 @@ import torch.nn as nn
 
 from ..utils.hooks import BaseInputPackager, IOHook
 from ..utils.math import HadamardMatrix, hardmard_transform, random_hadamard_matrix
+from ..utils.tools.helper import is_linear
 
 __all__ = [
     "rotate_in_channels",
@@ -103,7 +104,7 @@ def hadamard_in_channels(
 ):
     """Apply Hadamard quantization to the input channels of the modules."""
     for module in modules:
-        if isinstance(module, nn.Linear):
+        if is_linear(module):
             in_channels = module.in_features
             device, dtype = device or module.weight.device, dtype or module.weight.dtype
             rhs_double, lhs_double, k = HadamardMatrix.get(in_channels, scale=True, dtype=torch.float64)

@@ -24,6 +24,8 @@ from .action import CacheAction
 
 __all__ = ["BaseCalibCacheLoader"]
 
+from ..utils.tools.helper import is_linear
+
 
 class BaseCalibCacheLoader(ABC):
     """Base class for caching calibration dataset."""
@@ -66,7 +68,7 @@ class BaseCalibCacheLoader(ABC):
             `IOTensorsCache`:
                 Tensors cache for inputs and outputs.
         """
-        if isinstance(module, (nn.Linear,)):
+        if is_linear(module):
             return IOTensorsCache(
                 inputs=TensorCache(channels_dim=-1, reshape=LinearReshapeFn()),
                 outputs=TensorCache(channels_dim=-1, reshape=LinearReshapeFn()),

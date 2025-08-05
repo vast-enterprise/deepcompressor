@@ -2,7 +2,6 @@
 """Large Language Model Rotation module."""
 
 import gc
-
 import torch
 
 from deepcompressor.calib.rotate import (
@@ -12,9 +11,9 @@ from deepcompressor.calib.rotate import (
     rotate_out_channels,
 )
 from deepcompressor.utils import tools
-
-from ..nn.struct import DiffusionModelStruct
+from deepcompressor.utils.tools.helper import is_linear
 from .config import DiffusionQuantConfig
+from ..nn.struct import DiffusionModelStruct
 
 __all__ = ["rotate_diffusion"]
 
@@ -39,7 +38,7 @@ def rotate_diffusion(  # noqa: C901
     linears: dict[str, torch.nn.Linear] = {}
     size: float = 0
     for n, m in model.module.named_modules():
-        if isinstance(m, torch.nn.Linear):
+        if is_linear(m):
             devices[n] = m.weight.device
             dtypes[n] = m.weight.dtype
             linears[n] = m
